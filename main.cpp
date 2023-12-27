@@ -11,12 +11,14 @@ int main(int argc, char* argv[])
 	//HandleConsole::setConsoleTextColor(ConsoleColor::BLUE);
 	//std::cout << "Hello World" << std::endl;
 
-	Console console{ };
+	HandleConsole::Console console{ };
+	console.HideCursor();
 	while (true) {
 		timer.Update();
 
-		console.Write("Elapsed Time: " + std::to_string(timer.GetElapsedTime()));
-		console.Write("Delta Time: " + std::to_string(timer.GetTimeDelta()));
+		console.Write("Console Handling Test\n", ConsoleColor::BLUE);
+		console.Write("Elapsed Time: " + std::to_string(timer.GetElapsedTime()), ConsoleColor::YELLOW);
+		console.Write("Delta Time: " + std::to_string(timer.GetTimeDelta()), ConsoleColor::RED);
 		console.Write("FPS: " + std::to_string(timer.GetFPS()));
 		console.Render();
 		console.ClearText();
