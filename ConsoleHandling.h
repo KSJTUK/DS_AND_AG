@@ -44,7 +44,7 @@ namespace HandleConsole {
         system("cls");
     }
 
-    inline unsigned int consoleStrLen(ConsoleChar* consoleStr)
+    inline unsigned int consoleStrLen(const ConsoleChar* consoleStr)
     {
         unsigned int nStrLen{ };
         for (int i = 0; i < CONSOLE_BUF_SIZE; ++i) {
@@ -57,8 +57,16 @@ namespace HandleConsole {
     
     inline ConsoleChar* toConsoleStr(const std::string& str)
     {
-
+        ConsoleChar* lpszRtStr = new ConsoleChar[HandleConsole::CONSOLE_BUF_SIZE]{ };
+        unsigned int nLoopSize = str.size() > HandleConsole::CONSOLE_BUF_SIZE ? HandleConsole::CONSOLE_BUF_SIZE : str.size();
+        for (unsigned int i = 0; i < nLoopSize; ++i) {
+            lpszRtStr[i].cCharacter = str[i];
+            lpszRtStr[i].eColor = ConsoleColor::WHITE;
+        }
+        return lpszRtStr;
     }
+
+    ConsoleChar* toConsoleStrRandomColor(const std::string& str);
 
     class Console {
     public:
@@ -71,6 +79,9 @@ namespace HandleConsole {
 
         ConsoleChar** m_szStringBuffers{ };
         unsigned short m_nBufferRowSize{ };
+        
+    public:
+        unsigned short GetCurrentRowIndex() const { return m_nBufferRowSize; }
 
     public:
         void DisableQuickEditMode();
@@ -79,6 +90,8 @@ namespace HandleConsole {
         void HideCursor();
         void Write(const std::string& text);
         void Write(const std::string& text, ConsoleColor color);
+        void Write(unsigned short nRowIndex, const std::string& text, ConsoleColor color = ConsoleColor::WHITE);
+        void WriteRandomColors(const std::string& text);
         void Write(const ConsoleChar* text);
         void RenderText(unsigned short nBufferRowIndex);
         void ClearText();

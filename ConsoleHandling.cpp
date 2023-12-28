@@ -103,7 +103,53 @@ void HandleConsole::Console::Write(const std::string& text, ConsoleColor color) 
 	++m_nBufferRowSize;
 }
 
+void HandleConsole::Console::Write(unsigned short nRowIndex, const std::string& text, ConsoleColor color) {
+	m_nBufferRowSize = nRowIndex;
+	memset(m_szStringBuffers[m_nBufferRowSize], 0, HandleConsole::CONSOLE_BUF_SIZE);
+
+	int nStoreNewLineIdx{ };
+	unsigned int nLoopSize = text.size() > HandleConsole::CONSOLE_BUF_SIZE ? HandleConsole::CONSOLE_BUF_SIZE : text.size();
+	for (unsigned int i = 0; i < nLoopSize; ++i) {
+		if (text[i] == '\n') {
+			++m_nBufferRowSize;
+			nStoreNewLineIdx = i + 1;
+			continue;
+		}
+		m_szStringBuffers[m_nBufferRowSize][i - nStoreNewLineIdx].cCharacter = text[i];
+		m_szStringBuffers[m_nBufferRowSize][i - nStoreNewLineIdx].eColor = color;
+	}
+	++m_nBufferRowSize;
+}
+
+void HandleConsole::Console::WriteRandomColors(const std::string& text) {
+	int nStoreNewLineIdx{ };
+	unsigned int nLoopSize = text.size() > HandleConsole::CONSOLE_BUF_SIZE ? HandleConsole::CONSOLE_BUF_SIZE : text.size();
+	for (unsigned int i = 0; i < nLoopSize; ++i) {
+		if (text[i] == '\n') {
+			++m_nBufferRowSize;
+			nStoreNewLineIdx = i + 1;
+			continue;
+		}
+		m_szStringBuffers[m_nBufferRowSize][i - nStoreNewLineIdx].cCharacter = text[i];
+		m_szStringBuffers[m_nBufferRowSize][i - nStoreNewLineIdx].eColor = 
+			static_cast<ConsoleColor>(Random::RandInt((int)ConsoleColor::BLACK, (int)ConsoleColor::WHITE));
+	}
+	++m_nBufferRowSize;
+}
+
 void HandleConsole::Console::Write(const ConsoleChar* text) {
+	int nStoreNewLineIdx{ };
+	unsigned int nLoopSize = HandleConsole::consoleStrLen(text);
+	for (unsigned int i = 0; i < nLoopSize; ++i) {
+		if (text[i].cCharacter == '\n') {
+			++m_nBufferRowSize;
+			nStoreNewLineIdx = i + 1;
+			continue;
+		}
+		m_szStringBuffers[m_nBufferRowSize][i - nStoreNewLineIdx].cCharacter = text[i].cCharacter;
+		m_szStringBuffers[m_nBufferRowSize][i - nStoreNewLineIdx].eColor = text[i].eColor;
+	}
+	++m_nBufferRowSize;
 }
 
 void HandleConsole::Console::RenderText(unsigned short nBufferRowIndex) {
@@ -135,4 +181,15 @@ void HandleConsole::Console::Render() {
 	}
 
 	SwapScreen();
+}
+
+ConsoleChar* HandleConsole::toConsoleStrRandomColor(const std::string& str)
+{
+	ConsoleChar* lpszRtStr = new ConsoleChar[HandleConsole::CONSOLE_BUF_SIZE]{ };
+	unsigned int nLoopSize = str.size() > HandleConsole::CONSOLE_BUF_SIZE ? HandleConsole::CONSOLE_BUF_SIZE : str.size();
+	for (unsigned int i = 0; i < nLoopSize; ++i) {
+		lpszRtStr[i].cCharacter = str[i];
+		lpszRtStr[i].eColor = static_cast<ConsoleColor>(Random::RandInt((int)ConsoleColor::BLACK, (int)ConsoleColor::WHITE));
+	}
+	return lpszRtStr;
 }
